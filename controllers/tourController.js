@@ -2,6 +2,7 @@ const Tour = require('./../models/tourModel');
 const TourQueryBuilder = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+
 exports.getAllTours = catchAsync(async (req, res, next) => {
   const { page = 1, sort, limit = 10, fields, ...queryObj } = req.query;
 

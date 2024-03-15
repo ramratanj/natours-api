@@ -3,6 +3,11 @@ const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
   return new AppError(message, 400);
 };
+const handleJWTError = (err) =>
+  new AppError('Invalid token, Please log in again');
+const handleJWTExpiredError = (err) => {
+  new AppError('Invalid Expired Token');
+};
 const handleDuplicateFieldsDB = (err) => {
   const errors = Object.value(err.errors).map((el) => el.message);
   const value = err.errmsg;
@@ -46,7 +51,11 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
     if (error.name === 'CastError') error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    if (error.name === 'ValidationError') sendErrorProd(error, res);
+    if (error.name === 'ValidationError')
+      error = handleValidationErrorDB(error);
+    if (error.name === 'JsonWebTokenError') error = handleJWTError(error);
+    if (error.name === 'TokenExpiredError')
+      error = handleJWTExpiredError(error);
     sendErrorProd(error, res);
   }
 };
