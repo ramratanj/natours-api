@@ -37,13 +37,8 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords do not match',
     },
   },
-  passwordChangedAt: {
-    type: Date,
-    default: Date.now,
-  },
-  passwordResetToken: {
-    type: String,
-  },
+  passwordChangedAt: Date,
+  passwordResetToken: String,
   passwordResetExpires: Date,
   tokenVersion: {
     type: Number,
@@ -66,7 +61,11 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
-
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
 // Method to check if the password provided by the user during login matches the stored hashed password
 userSchema.methods.correctPassword = async function (
   candidatePassword,
